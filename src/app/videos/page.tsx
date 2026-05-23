@@ -23,7 +23,6 @@ export default function VideosPage() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [r34AuthMissing, setR34AuthMissing] = useState(false);
-  const [gelbooruAuthMissing, setGelbooruAuthMissing] = useState(false);
   const { activeSources, activeTags } = useStore();
   const router = useRouter();
   const fetchingRef = useRef(false);
@@ -51,7 +50,6 @@ export default function VideosPage() {
         setHasMore(data.hasMore);
         setPage(currentPage + 1);
         setR34AuthMissing(!!data.r34AuthMissing);
-        setGelbooruAuthMissing(!!data.gelbooruAuthMissing);
       } catch (err) {
         console.error(err);
       } finally {
@@ -93,7 +91,7 @@ export default function VideosPage() {
           </h1>
         </div>
         <p className="font-body text-sm text-on-surface-variant max-w-md">
-          Browse and play high-quality adult videos and animations from Rule34, Danbooru, and Gelbooru.
+          Browse and play high-quality adult videos and animations from Rule34 and Danbooru.
         </p>
 
         {/* Feature pills */}
@@ -160,32 +158,6 @@ RULE34_API_KEY=your_generated_api_key`}
         </div>
       )}
 
-      {gelbooruAuthMissing && activeSources.includes("gelbooru") && (
-        <div
-          className="rounded-2xl p-5 md:p-6 transition-all animate-reveal"
-          style={{
-            background: "rgba(168,140,251,0.08)",
-            border: "1px solid rgba(168,140,251,0.25)",
-            boxShadow: "0 8px 32px rgba(168,140,251,0.05)",
-          }}
-        >
-          <div className="flex items-start gap-4">
-            <span className="text-2xl mt-0.5">🔑</span>
-            <div className="space-y-2">
-              <h3 className="font-headline font-extrabold text-sm text-[#c0b0ff] tracking-tight uppercase">
-                Gelbooru API Credentials Missing
-              </h3>
-              <p className="font-body text-xs text-on-surface-variant leading-relaxed">
-                Gelbooru API queries now require authentication. Add your credentials to <code className="bg-black/40 px-1.5 py-0.5 rounded font-mono text-[10px]">.env.local</code> to enable Gelbooru content:
-              </p>
-              <pre className="p-2 bg-black/40 border border-white/5 rounded-lg font-mono text-[10px] text-white overflow-x-auto">
-{`GELBOORU_USER_ID=your_gelbooru_user_id
-GELBOORU_API_KEY=your_gelbooru_api_key`}
-              </pre>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Controls ─────────────────────────────────────── */}
       <div className="space-y-3">

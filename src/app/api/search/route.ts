@@ -14,7 +14,6 @@ export async function GET(req: NextRequest) {
     : undefined;
 
   const r34AuthMissing = !process.env.RULE34_API_KEY || !process.env.RULE34_USER_ID;
-  const gelbooruAuthMissing = !process.env.GELBOORU_API_KEY || !process.env.GELBOORU_USER_ID;
 
   try {
     const images = await searchImages({ query, page, limit, sources, onlyVideos });
@@ -23,7 +22,6 @@ export async function GET(req: NextRequest) {
       page,
       hasMore: images.length >= limit,
       r34AuthMissing,
-      gelbooruAuthMissing,
     });
   } catch (err) {
     console.error("Search error:", err);
