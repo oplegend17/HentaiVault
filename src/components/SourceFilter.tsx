@@ -11,12 +11,6 @@ const SOURCES: { id: ApiSource; label: string; activeStyle: React.CSSProperties;
     activeCls: "",
   },
   {
-    id: "gelbooru",
-    label: "Gelbooru",
-    activeStyle: { background: "rgba(34,197,94,0.12)", borderColor: "rgba(34,197,94,0.4)", color: "#86efac" },
-    activeCls: "",
-  },
-  {
     id: "rule34",
     label: "Rule34",
     activeStyle: { background: "rgba(249,115,22,0.12)", borderColor: "rgba(249,115,22,0.4)", color: "#fdba74" },
@@ -26,18 +20,6 @@ const SOURCES: { id: ApiSource; label: string; activeStyle: React.CSSProperties;
     id: "waifu.im",
     label: "Waifu.im",
     activeStyle: { background: "rgba(255,141,138,0.12)", borderColor: "rgba(255,141,138,0.4)", color: "#ff8d8a" },
-    activeCls: "",
-  },
-  {
-    id: "nekos",
-    label: "Nekos",
-    activeStyle: { background: "rgba(6,182,212,0.12)", borderColor: "rgba(6,182,212,0.4)", color: "#67e8f9" },
-    activeCls: "",
-  },
-  {
-    id: "nekosia",
-    label: "Nekosia",
-    activeStyle: { background: "rgba(168,140,251,0.12)", borderColor: "rgba(168,140,251,0.4)", color: "#a88cfb" },
     activeCls: "",
   },
 ];

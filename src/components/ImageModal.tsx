@@ -62,22 +62,34 @@ export default function ImageModal({ image, onClose }: Props) {
         </button>
 
         {/* Image panel */}
-        <div className="relative flex-1 min-h-[300px] lg:min-h-0 bg-surface-container-low" style={{ borderRadius: "1.5rem 0 0 1.5rem" }}>
-          <Image
-            src={image.url}
-            alt={image.tags.slice(0, 3).join(", ") || "image"}
-            fill
-            className="object-contain"
-            sizes="(max-width: 1024px) 100vw, 65vw"
-            unoptimized
-          />
+        <div className="relative flex-1 min-h-[300px] lg:min-h-0 bg-surface-container-low flex items-center justify-center" style={{ borderRadius: "1.5rem 0 0 1.5rem" }}>
+          {image.fileType === "video" ? (
+            <video
+              src={image.videoUrl || image.url}
+              poster={image.previewUrl}
+              controls
+              autoPlay
+              loop
+              playsInline
+              className="w-full h-full max-h-[70vh] object-contain rounded-t-[1.5rem] lg:rounded-l-[1.5rem] lg:rounded-tr-none"
+            />
+          ) : (
+            <Image
+              src={image.url}
+              alt={image.tags.slice(0, 3).join(", ") || "image"}
+              fill
+              className="object-contain"
+              sizes="(max-width: 1024px) 100vw, 65vw"
+              unoptimized
+            />
+          )}
           {/* Open full size */}
           {image.url && (
             <a
               href={image.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="absolute bottom-3 right-3 w-8 h-8 flex items-center justify-center rounded-full transition-all active:scale-90"
+              className="absolute bottom-3 right-3 w-8 h-8 flex items-center justify-center rounded-full transition-all active:scale-95"
               style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)", color: "#acaab1" }}
               title="Open full size"
             >

@@ -7,18 +7,18 @@ export interface HentaiImage {
   width?: number;
   height?: number;
   rating?: "safe" | "questionable" | "explicit";
+  /** image | gif | video (mp4/webm) */
   fileType?: "image" | "gif" | "video";
+  /** Direct video URL for mp4/webm posts */
+  videoUrl?: string;
   sourceUrl?: string;
   score?: number;
 }
 
 export type ApiSource =
   | "danbooru"
-  | "gelbooru"
   | "rule34"
   | "waifu.im"
-  | "nekos"
-  | "nekosia"
   | "fluxpoint";
 
 export interface SearchParams {
@@ -28,6 +28,7 @@ export interface SearchParams {
   page?: number;
   limit?: number;
   rating?: "safe" | "questionable" | "explicit" | "all";
+  onlyVideos?: boolean;
 }
 
 export interface Collection {
@@ -44,4 +45,10 @@ export interface User {
   email?: string | null;
   displayName?: string | null;
   isAnonymous: boolean;
+}
+
+export interface AutocompleteTag {
+  label: string;
+  value: string;
+  count?: number;
 }

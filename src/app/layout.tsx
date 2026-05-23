@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import ScrollToTop from "@/components/ScrollToTop";
+import AgeGate from "@/components/AgeGate";
 
 export const metadata: Metadata = {
   title: "HentaiVault 🌸",
@@ -31,6 +33,8 @@ export default function RootLayout({
 
         <Navbar />
         <main className="page-container py-6 pb-24">{children}</main>
+        <ScrollToTop />
+        <AgeGate />
       </body>
     </html>
   );

@@ -26,7 +26,7 @@ interface AppState {
   setSidebarOpen: (open: boolean) => void;
 }
 
-const ALL_SOURCES: ApiSource[] = ["danbooru", "gelbooru", "rule34", "waifu.im", "nekos", "nekosia"];
+const ALL_SOURCES: ApiSource[] = ["danbooru", "rule34", "waifu.im"];
 
 export const useStore = create<AppState>()(
   persist(
@@ -42,7 +42,7 @@ export const useStore = create<AppState>()(
       // Search
       searchQuery: "",
       setSearchQuery: (q) => set({ searchQuery: q }),
-      activeSources: ["danbooru", "gelbooru", "rule34", "waifu.im", "nekos"],
+      activeSources: ["danbooru", "rule34", "waifu.im"],
       toggleSource: (src) =>
         set((s) => ({
           activeSources: s.activeSources.includes(src)

@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Heart, Home, Shuffle, Search, Flame, Menu, X } from "lucide-react";
+import { Heart, Home, Shuffle, Search, Flame, Menu, X, Film } from "lucide-react";
 import { useState } from "react";
 
 const links = [
   { href: "/", label: "Home", icon: Home },
   { href: "/search", label: "Search", icon: Search },
+  { href: "/videos", label: "Videos", icon: Film },
   { href: "/random", label: "Random", icon: Shuffle },
   { href: "/favorites", label: "Favorites", icon: Heart },
 ];

@@ -2,17 +2,14 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Heart, ExternalLink, Tag } from "lucide-react";
+import { Heart, ExternalLink, Tag, Play } from "lucide-react";
 import { HentaiImage } from "@/types";
 import { useStore } from "@/store/useStore";
 
 const SOURCE_BADGE: Record<string, React.CSSProperties> = {
   danbooru:  { background: "rgba(59,130,246,0.15)",  color: "#93c5fd",  border: "1px solid rgba(59,130,246,0.25)" },
-  gelbooru:  { background: "rgba(34,197,94,0.12)",   color: "#86efac",  border: "1px solid rgba(34,197,94,0.25)" },
   rule34:    { background: "rgba(249,115,22,0.12)",  color: "#fdba74",  border: "1px solid rgba(249,115,22,0.25)" },
   "waifu.im":{ background: "rgba(255,141,138,0.12)", color: "#ff8d8a",  border: "1px solid rgba(255,141,138,0.25)" },
-  nekos:     { background: "rgba(6,182,212,0.12)",   color: "#67e8f9",  border: "1px solid rgba(6,182,212,0.25)" },
-  nekosia:   { background: "rgba(168,140,251,0.12)", color: "#a88cfb",  border: "1px solid rgba(168,140,251,0.25)" },
   fluxpoint: { background: "rgba(239,68,68,0.12)",   color: "#fca5a5",  border: "1px solid rgba(239,68,68,0.25)" },
 };
 
@@ -24,15 +21,16 @@ interface Props {
 export default function ImageCard({ image, onClick }: Props) {
   const { isFavorite, addFavorite, removeFavorite } = useStore();
   const [imgError, setImgError] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const fav = isFavorite(image.id);
+  const [loaded,   setLoaded]   = useState(false);
+  const fav      = isFavorite(image.id);
+  const isVideo  = image.fileType === "video";
 
   const toggleFav = (e: React.MouseEvent) => {
     e.stopPropagation();
     fav ? removeFavorite(image.id) : addFavorite(image);
   };
 
-  if (imgError) return null;
+  if (imgError && !isVideo) return null;
 
   return (
     <div
@@ -51,7 +49,7 @@ export default function ImageCard({ image, onClick }: Props) {
         (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
       }}
     >
-      {/* Image container */}
+      {/* Media container */}
       <div className="relative aspect-[3/4] w-full bg-surface-container">
         {/* Skeleton */}
         {!loaded && (
@@ -71,6 +69,22 @@ export default function ImageCard({ image, onClick }: Props) {
           unoptimized
         />
 
+        {/* Video badge — play icon overlay */}
+        {isVideo && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div
+              className="w-12 h-12 flex items-center justify-center rounded-full transition-all duration-200 group-hover:scale-110"
+              style={{
+                background: "rgba(0,0,0,0.65)",
+                backdropFilter: "blur(4px)",
+                border: "2px solid rgba(255,255,255,0.3)",
+              }}
+            >
+              <Play className="h-5 w-5 text-white fill-current ml-0.5" />
+            </div>
+          </div>
+        )}
+
         {/* GIF badge */}
         {image.fileType === "gif" && (
           <span
@@ -84,7 +98,7 @@ export default function ImageCard({ image, onClick }: Props) {
         {/* Gradient overlay on hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        {/* Action buttons — slide up on hover */}
+        {/* Action buttons */}
         <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-2.5 pb-2.5 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
           <button
             onClick={toggleFav}
@@ -123,13 +137,21 @@ export default function ImageCard({ image, onClick }: Props) {
         >
           {image.source}
         </span>
-        {image.tags.length > 0 && (
-          <span className="flex items-center gap-1 text-[10px] font-body text-outline">
-            <Tag className="h-2.5 w-2.5" />
-            {image.tags.length}
-          </span>
-        )}
+        <div className="flex items-center gap-1.5">
+          {isVideo && (
+            <span className="text-[10px] font-headline font-bold text-tertiary uppercase tracking-wide">
+              MP4
+            </span>
+          )}
+          {image.tags.length > 0 && (
+            <span className="flex items-center gap-1 text-[10px] font-body text-outline">
+              <Tag className="h-2.5 w-2.5" />
+              {image.tags.length}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
