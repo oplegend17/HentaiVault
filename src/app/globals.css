@@ -1,26 +1,195 @@
+/* ─── globals.css ─────────────────────────────────────────────────────────── */
+
+/* 1. Fonts — must come before @import "tailwindcss" */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+/* 2. Import Tailwind v4 */
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* 3. Source paths */
+@source "../src/**/*.{js,jsx,ts,tsx,html}";
+
+/* 4. Dark mode variant */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 5. Design tokens — all tokens live here, no tailwind.config.js needed */
+@theme {
+
+  /* ── Fonts ─────────────────────────────────────────── */
+  --font-headline: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body:     "Inter", system-ui, sans-serif;
+  --font-label:    "Inter", system-ui, sans-serif;
+
+  /* ── Border Radius ─────────────────────────────────── */
+  --radius-sm:   0.5rem;
+  --radius:      1rem;
+  --radius-lg:   2rem;
+  --radius-xl:   3rem;
+  --radius-full: 9999px;
+
+  /* ── Shadows ───────────────────────────────────────── */
+  --shadow-primary:   0 12px 24px rgba(255,141,138,0.25);
+  --shadow-secondary: 0 10px 20px rgba(168,140,251,0.20);
+  --shadow-tertiary:  0 10px 20px rgba(255,121,75,0.20);
+  --shadow-error:     0 0 40px rgba(213,61,24,0.40);
+  --shadow-sos:       0 0 50px rgba(255,141,138,0.40);
+
+  /* ── Keyframes & Animations ────────────────────────── */
+  --animate-float:   float 3s ease-in-out infinite;
+  --animate-reveal:  fadeSlideUp 400ms ease-out forwards;
+  --animate-fade-in: fadeIn 300ms ease-out forwards;
+
+  /* ── Neutral Surfaces ──────────────────────────────── */
+  --color-surface-dim:               #0e0e13;
+  --color-surface:                   #0e0e13;
+  --color-surface-container-low:     #131319;
+  --color-surface-container:         #19191f;
+  --color-surface-container-high:    #1f1f26;
+  --color-surface-container-highest: #25252d;
+  --color-surface-bright:            #2c2b33;
+  --color-background:                #0e0e13;
+  --color-on-surface:                #f9f5fd;
+  --color-on-background:             #f9f5fd;
+  --color-on-surface-variant:        #acaab1;
+  --color-outline:                   #76747b;
+  --color-outline-variant:           #48474d;
+
+  /* ── Primary ───────────────────────────────────────── */
+  --color-primary:                   #ff8d8a;
+  --color-primary-dim:               #ff706f;
+  --color-primary-fixed:             #ff7574;
+  --color-primary-fixed-dim:         #f56364;
+  --color-primary-container:         #ff7574;
+  --color-on-primary:                #64000e;
+  --color-on-primary-fixed:          #000000;
+  --color-on-primary-container:      #4e0009;
+  --color-on-primary-fixed-variant:  #60000d;
+  --color-surface-tint:              #ff8d8a;
+
+  /* ── Secondary ─────────────────────────────────────── */
+  --color-secondary:                  #a88cfb;
+  --color-secondary-dim:              #a88cfb;
+  --color-secondary-fixed:            #d8caff;
+  --color-secondary-fixed-dim:        #ccbaff;
+  --color-secondary-container:        #4f319c;
+  --color-on-secondary:               #260069;
+  --color-on-secondary-fixed:         #3c1989;
+  --color-on-secondary-container:     #d7c8ff;
+  --color-on-secondary-fixed-variant: #593ca6;
+
+  /* ── Tertiary ──────────────────────────────────────── */
+  --color-tertiary:                   #ff794b;
+  --color-tertiary-dim:               #ff7344;
+  --color-tertiary-fixed:             #ff9471;
+  --color-tertiary-fixed-dim:         #ff7d52;
+  --color-tertiary-container:         #fa622c;
+  --color-on-tertiary:                #461000;
+  --color-on-tertiary-fixed:          #330900;
+  --color-on-tertiary-container:      #2b0700;
+  --color-on-tertiary-fixed-variant:  #6d1d00;
+
+  /* ── Error ─────────────────────────────────────────── */
+  --color-error:                      #ff7351;
+  --color-error-dim:                  #d53d18;
+  --color-error-container:            #b92902;
+  --color-on-error:                   #450900;
+  --color-on-error-container:         #ffd2c8;
+
+  /* ── Inverse ───────────────────────────────────────── */
+  --color-inverse-surface:            #fcf8ff;
+  --color-inverse-on-surface:         #55545b;
+  --color-inverse-primary:            #ae3035;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* 6. Keyframe definitions */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes ping-slow {
+  0%   { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.8); opacity: 0; }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* 7. Base layer */
+@layer base {
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    box-sizing: border-box;
   }
+  html { background-color: #0e0e13; }
+  body {
+    font-family: var(--font-body);
+    color: #f9f5fd;
+    min-height: 100dvh;
+    background-color: #0e0e13;
+  }
+  ::selection {
+    background: rgba(255, 141, 138, 0.3);
+    color: #f9f5fd;
+  }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: #0e0e13; }
+  ::-webkit-scrollbar-thumb { background: #48474d; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #76747b; }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* 8. Component layer */
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .glass-subtle {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .glass-elevated {
+    background: rgba(255, 255, 255, 0.09);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  }
+  .signature-gradient {
+    background: linear-gradient(135deg, #ff8d8a 0%, #ff794b 100%);
+  }
+  .lavender-gradient {
+    background: linear-gradient(135deg, #a88cfb 0%, #d8caff 100%);
+  }
+  .btn-primary {
+    @apply w-full py-4 rounded-full font-headline font-bold text-base
+           text-on-primary-fixed
+           active:scale-95 hover:opacity-90
+           transition-all duration-200 border-none cursor-pointer
+           flex items-center justify-center gap-2;
+    background: linear-gradient(135deg, #ff8d8a 0%, #ff794b 100%);
+    box-shadow: 0 12px 24px rgba(255,141,138,0.25);
+  }
+  .section-label {
+    @apply font-label text-[10px] font-extrabold tracking-[0.2em]
+           text-on-surface-variant uppercase;
+  }
+  .page-container {
+    @apply max-w-7xl mx-auto w-full px-4 sm:px-6;
+  }
+  .animate-reveal {
+    animation: fadeSlideUp 400ms ease-out forwards;
+  }
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
 }
