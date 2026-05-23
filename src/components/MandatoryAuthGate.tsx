@@ -56,15 +56,13 @@ export default function MandatoryAuthGate({ children }: MandatoryAuthGateProps) 
           // Register user
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           const user = userCredential.user;
-          const normalizedEmail = email.toLowerCase().trim();
-          const role = normalizedEmail === "admin@admin.com" ? "admin" : "user";
 
           // Create Firestore profile document
           await setDoc(doc(db, "users", user.uid), {
             uid: user.uid,
-            email: normalizedEmail,
+            email: email.toLowerCase().trim(),
             username: username.trim(),
-            role,
+            role: "user",
             createdAt: new Date(),
           });
         } else {

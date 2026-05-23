@@ -110,25 +110,7 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, [selectedUser]);
 
-  // 3. Promote self option for dev speed
-  const handlePromoteSelf = async () => {
-    if (!currentUser) return;
-    try {
-      const userRef = doc(db, "users", currentUser.uid);
-      await updateDoc(userRef, {
-        role: "admin",
-      });
-      // Force update state
-      if (userProfile) {
-        setUserProfile({
-          ...userProfile,
-          role: "admin",
-        });
-      }
-    } catch (err) {
-      console.error("Failed to self promote:", err);
-    }
-  };
+
 
   // Toggle other user roles
   const handleToggleRole = async (user: any) => {
@@ -199,7 +181,7 @@ export default function AdminPage() {
   // Access Denied (Logged in but not Admin)
   if (!isUserAdmin) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-6 max-w-xl mx-auto text-center">
+      <div className="flex flex-col items-center justify-center py-32 gap-6 max-w-xl mx-auto text-center animate-fadeIn">
         <div className="w-20 h-20 flex items-center justify-center rounded-full bg-primary/10 border border-primary/20 text-primary animate-pulse">
           <Shield className="h-8 w-8" />
         </div>
@@ -207,24 +189,9 @@ export default function AdminPage() {
           <h1 className="font-headline font-extrabold text-3xl tracking-tight text-white mb-3">
             Admin Privileges Required
           </h1>
-          <p className="font-body text-base text-outline mb-8 max-w-md mx-auto leading-relaxed">
-            Logged in as <span className="text-white font-semibold">@{userProfile?.username}</span>, but you do not have administrative credentials to view user interaction histories.
+          <p className="font-body text-sm text-outline max-w-md mx-auto leading-relaxed">
+            Logged in as <span className="text-white font-semibold">@{userProfile?.username}</span>, but you do not have administrative credentials to access the Control Center.
           </p>
-          
-          <div className="p-6 rounded-2xl border border-primary/20 bg-primary/5 max-w-md mx-auto space-y-4">
-            <h2 className="font-headline font-bold text-sm text-primary uppercase tracking-wider">
-              Developer Quick-Start
-            </h2>
-            <p className="font-body text-xs text-outline leading-normal">
-              You can instantly promote this account to <span className="text-white">Admin</span> using the database shortcut button below.
-            </p>
-            <button
-              onClick={handlePromoteSelf}
-              className="w-full flex items-center justify-center rounded-xl py-3 px-4 bg-primary text-on-primary font-headline font-bold hover:bg-primary-hover active:scale-[0.98] transition-all text-sm shadow-lg shadow-primary/20"
-            >
-              Promote Myself to Admin
-            </button>
-          </div>
         </div>
       </div>
     );
