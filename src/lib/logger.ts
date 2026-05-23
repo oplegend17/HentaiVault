@@ -28,3 +28,26 @@ export async function logUserInteraction(
     console.error(`Failed to log user interaction [${actionType}]:`, error);
   }
 }
+
+export async function logUserSearch(
+  userId: string,
+  username: string,
+  query: string,
+  tags: string[]
+) {
+  if (!userId) return;
+
+  try {
+    const logsCollectionRef = collection(db, "users", userId, "logs");
+    await addDoc(logsCollectionRef, {
+      actionType: "search",
+      username,
+      imageId: "search-query", // dummy or category marker
+      query: query || "",
+      tags: tags || [],
+      timestamp: new Date(),
+    });
+  } catch (error) {
+    console.error("Failed to log user search:", error);
+  }
+}

@@ -19,7 +19,7 @@ function SearchContent() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState(initialQuery);
-  const { activeSources, activeTags } = useStore();
+  const { activeSources, activeTags, userProfile } = useStore();
   const fetchingRef = useRef(false);
 
   const fetchImages = useCallback(
@@ -36,6 +36,8 @@ function SearchContent() {
           page: String(currentPage),
           limit: "24",
           sources: activeSources.join(","),
+          userId: userProfile?.uid || "",
+          username: userProfile?.username || "",
         });
 
         const res = await fetch(`/api/search?${params}`);

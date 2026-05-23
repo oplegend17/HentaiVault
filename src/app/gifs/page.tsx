@@ -21,7 +21,7 @@ export default function GifsPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-  const { activeSources, activeTags } = useStore();
+  const { activeSources, activeTags, userProfile } = useStore();
   const router = useRouter();
   const fetchingRef = useRef(false);
 
@@ -39,6 +39,8 @@ export default function GifsPage() {
           limit: "24",
           sources: activeSources.join(","),
           gifs: "true", // Fetch only GIFs!
+          userId: userProfile?.uid || "",
+          username: userProfile?.username || "",
         });
 
         const res = await fetch(`/api/search?${params}`);

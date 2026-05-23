@@ -22,7 +22,7 @@ export default function HomePage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-  const { activeSources, activeTags } = useStore();
+  const { activeSources, activeTags, userProfile } = useStore();
   const router = useRouter();
   const fetchingRef = useRef(false);
 
@@ -39,6 +39,8 @@ export default function HomePage() {
           page: String(currentPage),
           limit: "24",
           sources: activeSources.join(","),
+          userId: userProfile?.uid || "",
+          username: userProfile?.username || "",
         });
 
         const res = await fetch(`/api/search?${params}`);

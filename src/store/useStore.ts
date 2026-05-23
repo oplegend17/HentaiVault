@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { HentaiImage, ApiSource } from "@/types";
 import { User } from "firebase/auth";
+import { doc, setDoc, deleteDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 
 interface AppState {
   // Favorites
@@ -44,10 +46,20 @@ export const useStore = create<AppState>()(
     (set, get) => ({
       // Favorites
       favorites: [],
-      addFavorite: (img) =>
-        set((s) => ({ favorites: [img, ...s.favorites.filter((f) => f.id !== img.id)] })),
-      removeFavorite: (id) =>
-        set((s) => ({ favorites: s.favorites.filter((f) => f.id !== id) })),
+      addFavorite: (img) => {
+        set((s) => ({ favorites: [img, ...s.favorites.filter((f) => f.id !== img.id)] }));
+        const user = auth.currentUser;
+        if (user) {
+          setDoc(doc(db, "users", user.uid, "favorites", img.id), img).catch(console.error);
+        }
+      },
+      removeFavorite: (id) => {
+        set((s) => ({ favorites: s.favorites.filter((f) => f.id !== id) }));
+        const user = auth.currentUser;
+        if (user) {
+          deleteDoc(doc(db, "users", user.uid, "favorites", id)).catch(console.error);
+        }
+      },
       isFavorite: (id) => get().favorites.some((f) => f.id === id),
 
       // Search

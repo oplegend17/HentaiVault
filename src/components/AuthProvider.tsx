@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, onSnapshot, setDoc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot, setDoc, getDoc, collection, getDocs } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { useStore } from "@/store/useStore";
 
@@ -20,6 +20,17 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       setCurrentUser(user);
 
       if (user) {
+        // Cloud-sync favorites to Zustand store on login/refresh
+        const favsRef = collection(db, "users", user.uid, "favorites");
+        getDocs(favsRef).then((snapshot) => {
+          const cloudFavs = snapshot.docs.map((doc) => doc.data() as any);
+          if (cloudFavs.length > 0) {
+            useStore.setState({ favorites: cloudFavs });
+          }
+        }).catch((err) => {
+          console.error("Failed to load cloud favorites:", err);
+        });
+
         // Listen to Firestore profile document in real-time
         const userDocRef = doc(db, "users", user.uid);
         

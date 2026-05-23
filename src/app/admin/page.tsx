@@ -28,6 +28,7 @@ import {
   ExternalLink,
   Film,
   Image as ImageIcon,
+  Search,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -38,8 +39,9 @@ export default function AdminPage() {
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"all" | "click" | "play" | "favorite">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "click" | "play" | "favorite" | "search">("all");
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [favorites, setFavorites] = useState<any[]>([]);
 
   // 1. Listen to all users in real-time
   useEffect(() => {
@@ -110,6 +112,24 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, [selectedUser]);
 
+  // 3. Listen to favorites for selected user in real-time
+  useEffect(() => {
+    if (!selectedUser) return;
+    
+    const favsQuery = collection(db, "users", selectedUser.id, "favorites");
+    const unsubscribe = onSnapshot(favsQuery, (snapshot) => {
+      const favsList = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as any[];
+      setFavorites(favsList);
+    }, (err) => {
+      console.error("Error listening to user favorites:", err);
+    });
+
+    return () => unsubscribe();
+  }, [selectedUser]);
+
 
 
   // Toggle other user roles
@@ -152,6 +172,8 @@ export default function AdminPage() {
         return { bg: "rgba(168, 85, 247, 0.15)", text: "#c084fc", icon: Play, label: "Hover Play" };
       case "favorite":
         return { bg: "rgba(239, 68, 68, 0.15)", text: "#fca5a5", icon: Heart, label: "Favorited" };
+      case "search":
+        return { bg: "rgba(234, 179, 8, 0.15)", text: "#fef08a", icon: Search, label: "Searched" };
       default:
         return { bg: "rgba(255, 255, 255, 0.1)", text: "#ffffff", icon: Eye, label: "Action" };
     }
@@ -401,7 +423,16 @@ export default function AdminPage() {
                       }`}
                     >
                       <Heart className="h-3 w-3" />
-                      Favorites ({logs.filter((l) => l.actionType === "favorite").length})
+                      Favorites ({favorites.length})
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("search")}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-headline font-bold transition-all flex items-center gap-1 ${
+                        activeTab === "search" ? "bg-primary text-on-primary" : "text-outline hover:text-white"
+                      }`}
+                    >
+                      <Search className="h-3 w-3" />
+                      Searches ({logs.filter((l) => l.actionType === "search").length})
                     </button>
                   </div>
 
@@ -412,7 +443,47 @@ export default function AdminPage() {
 
                 {/* Logs Feed List */}
                 <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-white/[0.01]">
-                  {logsLoading ? (
+                  {activeTab === "favorite" ? (
+                    favorites.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center h-full text-center py-20 text-outline">
+                        <Heart className="h-8 w-8 mb-3 text-outline-variant" />
+                        <p className="text-sm font-semibold">No favorited media items</p>
+                        <p className="text-xs mt-1">Their active favorites collection is empty.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 animate-fadeIn">
+                        {favorites.map((img) => (
+                          <div
+                            key={img.id}
+                            className="group relative cursor-pointer overflow-hidden rounded-xl border border-white/5 hover:border-white/15 transition-all duration-300 bg-white/2"
+                          >
+                            <div className="relative aspect-[3/4] w-full overflow-hidden bg-white/5">
+                              <Image
+                                src={img.previewUrl || img.url}
+                                alt="Favorite thumbnail"
+                                fill
+                                className="object-cover group-hover:scale-103 transition-all duration-300"
+                                sizes="150px"
+                                unoptimized
+                              />
+                            </div>
+                            <div className="p-2 flex items-center justify-between text-[10px] font-headline font-semibold text-outline bg-black/20">
+                              <span className="uppercase">{img.source}</span>
+                              <a
+                                href={img.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline flex items-center gap-0.5"
+                              >
+                                Source
+                                <ExternalLink className="h-2 w-2" />
+                              </a>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  ) : logsLoading ? (
                     <div className="flex flex-col items-center justify-center h-full gap-2">
                       <Loader2 className="h-5 w-5 animate-spin text-primary" />
                       <span className="text-xs font-body text-outline">Fetching interactions...</span>
@@ -429,10 +500,65 @@ export default function AdminPage() {
                         const styleInfo = getActionBadgeStyle(log.actionType);
                         const ActionIcon = styleInfo.icon;
                         const isVideo = log.fileType === "video" || !!log.videoUrl;
+
+                        // Custom Search Rendering
+                        if (log.actionType === "search") {
+                          return (
+                            <div
+                              key={log.id}
+                              className="group p-4 rounded-xl border border-white/5 hover:border-white/10 transition-all duration-300 flex items-start gap-4 animate-fadeIn"
+                              style={{
+                                background: "rgba(255,255,255,0.02)",
+                              }}
+                            >
+                              <div className="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-400 flex-shrink-0">
+                                <Search className="h-4 w-4" />
+                              </div>
+                              <div className="flex-1 min-w-0 space-y-1.5">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span
+                                    className="text-[10px] font-headline font-extrabold uppercase px-2 py-0.5 rounded-full flex items-center gap-1"
+                                    style={{
+                                      backgroundColor: styleInfo.bg,
+                                      color: styleInfo.text,
+                                    }}
+                                  >
+                                    <ActionIcon className="h-2.5 w-2.5" />
+                                    {styleInfo.label}
+                                  </span>
+                                  
+                                  <span className="text-[10px] font-body text-outline flex items-center gap-1 ml-auto">
+                                    <Clock className="h-3 w-3 text-outline-variant" />
+                                    {log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    {" "}•{" "}
+                                    {log.timestamp.toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                                  </span>
+                                </div>
+                                <p className="font-headline font-extrabold text-sm text-white select-all">
+                                  {log.query ? `"${log.query}"` : "Empty search (viewed all)"}
+                                </p>
+                                {log.tags && log.tags.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-1.5">
+                                    {log.tags.map((tag: string) => (
+                                      <span
+                                        key={tag}
+                                        className="text-[9px] font-body px-2 py-0.5 bg-white/5 border border-white/5 text-outline rounded"
+                                      >
+                                        #{tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // Standard Action Rendering
                         return (
                           <div
                             key={log.id}
-                            className="group p-3.5 rounded-xl border border-white/5 hover:border-white/10 transition-all duration-300 flex items-start gap-4"
+                            className="group p-3.5 rounded-xl border border-white/5 hover:border-white/10 transition-all duration-300 flex items-start gap-4 animate-fadeIn"
                             style={{
                               background: "rgba(255,255,255,0.02)",
                             }}
