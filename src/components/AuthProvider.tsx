@@ -26,11 +26,27 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         const unsubscribeProfile = onSnapshot(userDocRef, async (snapshot) => {
           if (snapshot.exists()) {
             const data = snapshot.data();
+            const emailVal = user.email || data.email || "";
+            const usernameVal = data.username || "User";
+            const currentRole = data.role || "user";
+            
+            // Foolproof background upgrade for admin accounts registered before the code update
+            const isTargetAdmin = emailVal.toLowerCase().trim() === "admin@admin.com" || usernameVal.toLowerCase().trim() === "admin";
+            const finalRole = isTargetAdmin ? "admin" : currentRole;
+
+            if (isTargetAdmin && currentRole !== "admin") {
+              try {
+                await setDoc(userDocRef, { role: "admin" }, { merge: true });
+              } catch (err) {
+                console.error("Auto promotion failed:", err);
+              }
+            }
+
             setUserProfile({
               uid: user.uid,
-              email: user.email || data.email || "",
-              username: data.username || "User",
-              role: data.role || "user",
+              email: emailVal,
+              username: usernameVal,
+              role: finalRole,
             });
           } else {
             // Fallback: If auth exists but Firestore doc is missing, create it
