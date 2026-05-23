@@ -48,6 +48,9 @@ async function fetchDanbooru(params: SearchParams): Promise<HentaiImage[]> {
   if (params.onlyVideos) {
     rawTags += "+type:video";
   }
+  if (params.onlyGifs) {
+    rawTags += "+file_ext:gif";
+  }
 
   const page  = params.page  ?? 1;
   const limit = Math.min(params.limit ?? 20, 200);
@@ -98,6 +101,9 @@ async function fetchRule34(params: SearchParams): Promise<HentaiImage[]> {
   let tags  = params.query || params.tags?.join(" ") || "hentai";
   if (params.onlyVideos) {
     tags += " video";
+  }
+  if (params.onlyGifs) {
+    tags += " gif";
   }
   const pid   = (params.page ?? 1) - 1; // Rule34 uses 0-based page index
   const limit = Math.min(params.limit ?? 20, 1000);
@@ -207,6 +213,9 @@ export async function searchImages(params: SearchParams): Promise<HentaiImage[]>
     ["danbooru", "rule34", "waifu.im"] as ApiSource[]
   );
 
+  // Filter sources to ensure they are valid fetcher functions, preventing crashes from persisted obsolete client configurations
+  sources = sources.filter((src) => src in fetchers);
+
   if (params.onlyVideos) {
     sources = ["rule34"];
   }
@@ -231,6 +240,10 @@ export async function searchImages(params: SearchParams): Promise<HentaiImage[]>
 
   if (params.onlyVideos) {
     deduped = deduped.filter((img) => img.fileType === "video");
+  }
+
+  if (params.onlyGifs) {
+    deduped = deduped.filter((img) => img.fileType === "gif");
   }
 
   // Shuffle for variety

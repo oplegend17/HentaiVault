@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { HentaiImage } from "@/types";
 import ImageCard from "./ImageCard";
 import ImageModal from "./ImageModal";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { Loader2, ImageOff } from "lucide-react";
+import { useStore } from "@/store/useStore";
+import { logUserInteraction } from "@/lib/logger";
 
 interface Props {
   images: HentaiImage[];
@@ -21,6 +23,28 @@ export default function Gallery({
   loading = false,
 }: Props) {
   const [selected, setSelected] = useState<HentaiImage | null>(null);
+  const [cols, setCols] = useState(2);
+  const { currentUser, userProfile } = useStore();
+
+  const handleSelect = (img: HentaiImage) => {
+    setSelected(img);
+    if (currentUser && userProfile) {
+      logUserInteraction(userProfile.uid, userProfile.username, "click", img);
+    }
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      const w = window.innerWidth;
+      if (w >= 1280) setCols(5);
+      else if (w >= 1024) setCols(4);
+      else if (w >= 640) setCols(3);
+      else setCols(2);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleLoadMore = useCallback(() => {
     if (onLoadMore && !loading) onLoadMore();
@@ -45,17 +69,27 @@ export default function Gallery({
     );
   }
 
+  // Split images into vertical columns sequentially
+  const columns = Array.from({ length: cols }, () => [] as HentaiImage[]);
+  images.forEach((img, i) => {
+    columns[i % cols].push(img);
+  });
+
   return (
     <>
       {/* Masonry grid */}
-      <div className="columns-2 gap-3 sm:columns-3 lg:columns-4 xl:columns-5 space-y-3">
-        {images.map((img, i) => (
-          <div
-            key={img.id}
-            className="break-inside-avoid animate-reveal"
-            style={{ animationDelay: `${Math.min(i % 10, 9) * 30}ms` }}
-          >
-            <ImageCard image={img} onClick={setSelected} />
+      <div className="flex gap-3 items-start">
+        {columns.map((columnImages, colIdx) => (
+          <div key={colIdx} className="flex-1 flex flex-col gap-3">
+            {columnImages.map((img, i) => (
+              <div
+                key={img.id}
+                className="animate-reveal w-full"
+                style={{ animationDelay: `${Math.min(i % 10, 9) * 30}ms` }}
+              >
+                <ImageCard image={img} onClick={handleSelect} />
+              </div>
+            ))}
           </div>
         ))}
       </div>

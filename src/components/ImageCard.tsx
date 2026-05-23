@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Heart, ExternalLink, Tag, Play } from "lucide-react";
 import { HentaiImage } from "@/types";
@@ -13,21 +13,65 @@ const SOURCE_BADGE: Record<string, React.CSSProperties> = {
   fluxpoint: { background: "rgba(239,68,68,0.12)",   color: "#fca5a5",  border: "1px solid rgba(239,68,68,0.25)" },
 };
 
+import { logUserInteraction } from "@/lib/logger";
+
 interface Props {
   image: HentaiImage;
   onClick: (img: HentaiImage) => void;
 }
 
 export default function ImageCard({ image, onClick }: Props) {
-  const { isFavorite, addFavorite, removeFavorite } = useStore();
+  const {
+    isFavorite,
+    addFavorite,
+    removeFavorite,
+    currentUser,
+    userProfile,
+    setAuthModalOpen,
+  } = useStore();
   const [imgError, setImgError] = useState(false);
   const [loaded,   setLoaded]   = useState(false);
+  const [hovered,  setHovered]  = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  
   const fav      = isFavorite(image.id);
   const isVideo  = image.fileType === "video";
 
+  let aspectRatio = "3 / 4";
+  if (image.width && image.height) {
+    const ratio = image.width / image.height;
+    // Clamp between 0.6 (tall) and 1.5 (wide) for beautiful masonry proportions
+    const clamped = Math.max(0.6, Math.min(1.5, ratio));
+    aspectRatio = `${clamped}`;
+  }
+
+  useEffect(() => {
+    if (!videoRef.current || !isVideo) return;
+    if (hovered) {
+      videoRef.current.play().catch(() => {});
+      if (currentUser && userProfile) {
+        logUserInteraction(userProfile.uid, userProfile.username, "play", image);
+      }
+    } else {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  }, [hovered, isVideo, currentUser, userProfile, image]);
+
   const toggleFav = (e: React.MouseEvent) => {
     e.stopPropagation();
-    fav ? removeFavorite(image.id) : addFavorite(image);
+    if (!currentUser) {
+      setAuthModalOpen(true);
+      return;
+    }
+    if (fav) {
+      removeFavorite(image.id);
+    } else {
+      addFavorite(image);
+      if (userProfile) {
+        logUserInteraction(userProfile.uid, userProfile.username, "favorite", image);
+      }
+    }
   };
 
   if (imgError && !isVideo) return null;
@@ -41,33 +85,54 @@ export default function ImageCard({ image, onClick }: Props) {
       }}
       onClick={() => onClick(image)}
       onMouseEnter={(e) => {
+        setHovered(true);
         (e.currentTarget as HTMLDivElement).style.border = "1px solid rgba(255,141,138,0.25)";
         (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 32px rgba(0,0,0,0.4)";
       }}
       onMouseLeave={(e) => {
+        setHovered(false);
         (e.currentTarget as HTMLDivElement).style.border = "1px solid rgba(255,255,255,0.07)";
         (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
       }}
     >
       {/* Media container */}
-      <div className="relative aspect-[3/4] w-full bg-surface-container">
+      <div
+        className="relative w-full bg-surface-container overflow-hidden"
+        style={{ aspectRatio }}
+      >
         {/* Skeleton */}
         {!loaded && (
           <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-surface-container to-surface-container-high" />
         )}
 
-        <Image
-          src={image.previewUrl ?? image.url}
-          alt={image.tags.slice(0, 3).join(", ") || "image"}
-          fill
-          className={`object-cover transition-all duration-500 ${
-            loaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
-          } group-hover:scale-[1.03]`}
-          onLoad={() => setLoaded(true)}
-          onError={() => setImgError(true)}
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-          unoptimized
-        />
+        {isVideo ? (
+          <video
+            ref={videoRef}
+            src={image.videoUrl || image.url}
+            poster={image.previewUrl}
+            loop
+            muted
+            playsInline
+            className={`w-full h-full object-cover transition-all duration-500 ${
+              loaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
+            }`}
+            onLoadedData={() => setLoaded(true)}
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <Image
+            src={image.previewUrl ?? image.url}
+            alt={image.tags.slice(0, 3).join(", ") || "image"}
+            fill
+            className={`object-cover transition-all duration-500 ${
+              loaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
+            } group-hover:scale-[1.03]`}
+            onLoad={() => setLoaded(true)}
+            onError={() => setImgError(true)}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            unoptimized
+          />
+        )}
 
         {/* Video badge — play icon overlay */}
         {isVideo && (

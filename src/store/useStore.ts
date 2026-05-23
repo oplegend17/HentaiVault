@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { HentaiImage, ApiSource } from "@/types";
+import { User } from "firebase/auth";
 
 interface AppState {
   // Favorites
@@ -24,6 +25,16 @@ interface AppState {
   setSelectedImage: (img: HentaiImage | null) => void;
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
+
+  // Auth & Profile
+  currentUser: User | null;
+  setCurrentUser: (user: User | null) => void;
+  userProfile: { uid: string; email: string; username: string; role: "user" | "admin" } | null;
+  setUserProfile: (profile: { uid: string; email: string; username: string; role: "user" | "admin" } | null) => void;
+  authModalOpen: boolean;
+  setAuthModalOpen: (open: boolean) => void;
+  authLoading: boolean;
+  setAuthLoading: (loading: boolean) => void;
 }
 
 const ALL_SOURCES: ApiSource[] = ["danbooru", "rule34", "waifu.im"];
@@ -63,6 +74,16 @@ export const useStore = create<AppState>()(
       setSelectedImage: (img) => set({ selectedImage: img }),
       sidebarOpen: false,
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
+
+      // Auth & Profile
+      currentUser: null,
+      setCurrentUser: (currentUser) => set({ currentUser }),
+      userProfile: null,
+      setUserProfile: (userProfile) => set({ userProfile }),
+      authModalOpen: false,
+      setAuthModalOpen: (authModalOpen) => set({ authModalOpen }),
+      authLoading: true,
+      setAuthLoading: (authLoading) => set({ authLoading }),
     }),
     {
       name: "hentaivault-store",

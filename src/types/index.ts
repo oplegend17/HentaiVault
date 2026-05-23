@@ -29,6 +29,7 @@ export interface SearchParams {
   limit?: number;
   rating?: "safe" | "questionable" | "explicit" | "all";
   onlyVideos?: boolean;
+  onlyGifs?: boolean;
 }
 
 export interface Collection {

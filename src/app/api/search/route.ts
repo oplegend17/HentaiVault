@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get("limit") ?? "20", 10);
   const sourcesParam = searchParams.get("sources");
   const onlyVideos = searchParams.get("videos") === "true";
+  const onlyGifs = searchParams.get("gifs") === "true";
   const sources = sourcesParam
     ? (sourcesParam.split(",") as ApiSource[])
     : undefined;
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest) {
   const r34AuthMissing = !process.env.RULE34_API_KEY || !process.env.RULE34_USER_ID;
 
   try {
-    const images = await searchImages({ query, page, limit, sources, onlyVideos });
+    const images = await searchImages({ query, page, limit, sources, onlyVideos, onlyGifs });
     return NextResponse.json({
       images,
       page,
