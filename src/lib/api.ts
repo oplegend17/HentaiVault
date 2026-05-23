@@ -124,7 +124,7 @@ async function fetchRule34(params: SearchParams): Promise<HentaiImage[]> {
       const displayUrl  = fileType === "video"
         ? ((p.sample_url ?? p.preview_url ?? fileUrl) as string)
         : fileUrl;
-      const previewUrl  = (p.preview_url ?? p.sample_url ?? fileUrl) as string;
+      const previewUrl  = (p.sample_url ?? p.preview_url ?? fileUrl) as string;
 
       return {
         id:        `rule34-${p.id}`,
