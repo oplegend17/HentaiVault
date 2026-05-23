@@ -208,7 +208,7 @@ export async function searchImages(params: SearchParams): Promise<HentaiImage[]>
   );
 
   if (params.onlyVideos) {
-    sources = sources.filter((src) => ["danbooru", "rule34"].includes(src));
+    sources = ["rule34"];
   }
 
   const results = await Promise.allSettled(

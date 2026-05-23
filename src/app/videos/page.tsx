@@ -91,7 +91,7 @@ export default function VideosPage() {
           </h1>
         </div>
         <p className="font-body text-sm text-on-surface-variant max-w-md">
-          Browse and play high-quality adult videos and animations from Rule34 and Danbooru.
+          Browse and play high-quality adult videos and animations from Rule34.
         </p>
 
         {/* Feature pills */}
@@ -162,7 +162,6 @@ RULE34_API_KEY=your_generated_api_key`}
       {/* ── Controls ─────────────────────────────────────── */}
       <div className="space-y-3">
         <SearchBar onSearch={() => { setPage(1); fetchVideos(true); }} placeholder="Search video tags, characters, series..." />
-        <SourceFilter />
         <TagFilter />
         <TagCloud onTagSelect={() => { setPage(1); fetchVideos(true); }} />
       </div>
